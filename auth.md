@@ -95,3 +95,64 @@ the workflow
 
 ![alt text](image.png)
 ```
+### enabling AppRole auth 
+> vault auth enable approle 
+
+we create the policy that will allow the approle to have the required permissions 
+> vault policy write jenkins -<<EOF
+# Read-only permission on secrets stored at 'secret/data/mysql/webapp'
+path "secret/data/mysql/webapp" {
+  capabilities = [ "read" ]
+}
+EOF
+
+we create role name jenkis with TTL and the we attach the police we just created 
+
+> vault write auth/approle/role/jenkins token_policies="jenkins" \
+    token_ttl=1h token_max_ttl=4h
+
+if we want to use multi policies we use a comma to separete the policies 
++ token_policies="jenkins,anotherpolicy"
+
+# to read approle 
+> vault read auth/approle/role/jenkins 
+![alt text](image-1.png)
+
+# To create new approles syntax 
+> vault write auth/approle/role/<ROLE_NAME> [parameters]
+```
+#### Get RoleID and SecretID
++ The RoleID and SecretID are like username and password that an app uses 
+we can get them through these endpoints 
++ vault read `auth/approle/role/<ROLE_NAME>/role-id`
+we can generate the secret-id with 
++ vault write -f  `auth/approle/role/<ROLE_NAME>/secret-id`
+
++ The `RoleID` is like a username which means every role has the same RoleID
++ `SecretID` behaves like a password that Vault will generate a new value every time you request it.
+
+#### Log in with RoleID & SecretID
++ we use the login endpoint `auth/approle/login`
+
+> vault write auth/approle/login role_id="e6fe9757-09e3-6b83-ef14-1d7730a97ac3" \
+    secret_id="2b34afd9-c48f-5e20-5e31-76e18677dd54"
+after login vault returns the details of the role 
+
+#### Read secrets using the AppRole token 
++ we can use the token from the role which vault gives us after login 
++ export APP_TOKEN="token_here "
+
+we can verify by accessing the secret we created
++ `VAULT_TOKEN=$APP_TOKEN vault kv get secret/mysql/webapp`
+
+ we only have read access according to our policy if we try to delete it it fails we get the permission denial 
++ `VAULT_TOKEN=$APP_TOKEN vault kv delete secret/mysql/webapp` 
+
+#### Limit the SecretID usages
++ we can limit the number of users who can use the secretID 
+> vault write auth/approle/role/jenkins token_policies="jenkins" \
+     token_ttl=1h token_max_ttl=4h \
+     secret_id_num_uses=10
+
+After reaching the set number of uses, the SecretID expires and you would need to generate a new one. This is like forcing a password rotation
+
