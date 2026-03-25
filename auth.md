@@ -87,3 +87,11 @@ These are tokens with root capabilities and have the root police. they can do an
 # vault operator geneeate-root
 
 ```
+
+### Generate tokens for machine authentication with AppRole
++ AppRole- method is the type of auth that is used by apps to authenticate with vault ( or machines ) 
++ it uses RoleID and SecretID for login 
+the workflow 
+
+![alt text](image.png)
+```
