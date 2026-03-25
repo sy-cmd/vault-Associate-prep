@@ -64,4 +64,26 @@ vault read auth/userpass/users/john
 ## Authenticate
 vault login -method=userpass username=john
 ```
+## Tokens
++ tokens are the core of aunthntication in vault, tokens can be used directly with auth methods.
++ `vault opeator init` is the only method that can not be disabled and as its the first auth method 
+ + The rest of the tokens that are created they all have the same properties 
++ within vault tokens have access to the cluster according to the policies attached to them.
 
+## Token store 
++ auth authentication backed its responsible for creating and storing tokens and can't be disabled. it is the only method that has no login capabilities 
+
+### Token types 
++ there are two types of tokens
+  + Batch - these are tokens that carry enough information to be used by vault actions and they don't have the features in service tokens 
+  + Service -  these are tokens with many features such as renewal revoking and can create children. we can also track them 
+
+Root tokens 
+These are tokens with root capabilities and have the root police. they can do anything in  vault and don't have TTL. we can create root tokens in three ways 
++ via the inistial `vault operator init`
++ by using another root token , a root token with an expiration date can't create a root token that nerver expires 
++ by using `vault operator generate-root`
+```
+# vault operator geneeate-root
+
+```
