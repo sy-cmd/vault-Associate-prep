@@ -78,3 +78,15 @@ path "secret/+/+/teamb" {
 anything with 3 segments 
 secret/demo/dev/teamb
 ```
+## Capabilities
+Policies must define one or more capabilities which must in an array like the examples above 
+### list of capabilities 
++ `Create`- Post/Put ,allows to create data to a given path 
++ `Read` - GET, allows to read data with in a given path 
++ `Update` - Post/Put allow to update data in a given path 
++ `Patch` - Patch , allows partial updates to a given path 
++ `Delete` - Delete, allows to delete data in a given path 
++  `List` - List , allows to list data 
++ `Sudo` - allows access to paths that have root protected,like modifying the backend of vault 
++ `Deny` - disallows access 
++ 
