@@ -37,6 +37,14 @@ vault write database/config/postgres-demo \
     username="vault_admin" \
     password="admin123"
 
+
+vault write database/config/postgres-demo \
+    plugin_name=postgresql-database-plugin \
+    allowed_roles="*" \
+    connection_url="postgresql://postgres:postgres@10.43.193.89:5432/testdb" \
+    username="postgres" \
+    password="postgres"
+
 ![alt text](image-2.png)
 
 
@@ -128,4 +136,64 @@ vault delete database/config/postgres-demo
 
 # Disable the secrets engine (if no longer needed)
 vault secrets disable database
+```
+
+##  keyValue KV 
++ kv secrets engine is a key value store that stores values within the configured physical storage for vault. we can simply store static secrets in kv secrets engine 
+### difference between KV1 and KV2 
++ `Versioning` -- kv1 has no version history , updates permanetly overwrite previous keys, kv2 has version history and we can recover delete keys 
++ `DATA` in kv1 data is permanetly deleted while in kv2 data can be recoved and it can only be permanetly deleted when the kv2 is destroyed 
++ it has now metadata tracking while kv2 has metadata tracking 
++ `API` path --- KV1 `secret/key_path` while KV2 `secret/data/<key_path>` , `secret/metadata/<key_path>`
++ `Storage overhead` - kv1 doesn't require a lot of storage has it doesn't store version or metadata like kv2 
+
+### Practical 
+```
+## we enable the secret at secrets 
+vault secrets enable -path=kv2 -version=2 kv
+
+## we can verifly the secret with 
+vault secrets list -detailed | grep kv2
+
+## writing a secret to the kv
+vault kv put kv2/web-app \
+  api-key="abc123xyz" \
+  db-password="SecurePass123"
+
+OUTPUT -- it also includes the version of the key 
+![alt text](image-4.png)
+
+### to get the secret 
+ vault kv get kv2/web-app 
+
+ ### to read a specific version 
+ vault kv get -version=1 kv2/web-app
+
+### to read the metadata only 
+vault kv metadata get kv2/web-app
+
+### update and versioning this creates version 2 
+vault kv put secret/web-app \
+  api-key="new-key-456" \
+  db-password="SecurePass123"
+
+
+### Update only one field using patch (KV v2 only)
+vault kv patch secret/web-app api-key="patched-key-789"
+
+### delete and recover this deletes the latest version and it becomes inaccessible 
+vault kv delete kv2/web-app
+
+### when we try to access it 
+![alt text](image-5.png)
+
+### when can confirm from the metadata when the latest version has been deleted 
+vault kv metadata get  kv2/web-app 
+
+### Undelete ( recover)
+vault kv undelete -versions=3 kv2/web-app
+
+### destroy to permanently destroy the version
+vault kv destroy -versions=3 kv2/web-app
+
 ```
