@@ -197,3 +197,15 @@ vault kv undelete -versions=3 kv2/web-app
 vault kv destroy -versions=3 kv2/web-app
 
 ```
+
+
+### Difference between static and dynamic secrets 
++ static secrets these are secrets that don't need changing very often and they don't expire. we store them in secretes engine like `KV`
+ + examples of secrets API keys , username and password, 3rd party tokens , encryption keys 
++ dynamic secrets these are secrets that are created on demand and they do expire based on their TTL 
+  + with dynamic secrets vault intergrates with a 3rd party that requests for these secrets 
+  + examples of dynamic secrets , database keys , cloud provider credentials , and also the transit data engine does not store data but only handles encryption and decryption of data 
+
+
+## Identity secrets engine
++ its the identity management for vault and it maintains the accounts that are identified by vault. 
