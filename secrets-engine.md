@@ -209,3 +209,10 @@ vault kv destroy -versions=3 kv2/web-app
 
 ## Identity secrets engine
 + its the identity management for vault and it maintains the accounts that are identified by vault. 
+
+### transit secrets engine 
++ the primary use case for the  transit secrets engine is to encrypt and decrypt data , it removed the burden from developers and puts it on vault.
+Features of the transit secrets engine:
++ sign and verify data 
++ generates hashes and HMACs of data 
++ Act as a source of random bytes 
