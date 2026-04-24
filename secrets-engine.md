@@ -216,3 +216,80 @@ Features of the transit secrets engine:
 + sign and verify data 
 + generates hashes and HMACs of data 
 + Act as a source of random bytes 
+
+### practical 
+````
+### we need to enable the secrets engine
++ vault secrets enable transit 
+
+if i want to mount it at a different path i use the path parameter 
++ vault secrets enable -path=encryption transit
+
+### we create an encryption key ring named orders 
++ vault write -f transit/keys/orders
+````
+### Encrypt secrets
+#### we need to have a token that has UPDATE cababilities on the path of our transit engine
+> vault policy write app-orders -<<EOF
+path "transit/encrypt/orders" {
+   capabilities = [ "update" ]
+}
+path "transit/decrypt/orders" {
+   capabilities = [ "update" ]
+}
+EOF
+
+#### we create a token with the policy 
+> vault token create -policy=app-orders
+
++ we store the token in a variable  
+> export APP_ORDER_TOKEN=$(vault token create \
+    -policy=app-orders \
+    -format=json | jq -r '.auth | .client_token')
+
+
+we encrypt data from the shell to base64 
+> VAULT_TOKEN=$APP_ORDER_TOKEN vault write transit/encrypt/orders \
+    plaintext=$(base64 <<< "4111 1111 1111 1111")
+
+we save the encypted data in a variable 
+> export CIPHERTEXT=$(VAULT_TOKEN=$APP_ORDER_TOKEN vault write transit/encrypt/orders \
+    plaintext=$(base64 <<< "4111 1111 1111 1111")\
+    -format=json | jq -r '.data | .ciphertext')
+
+### Decrypt ciphertext
++ any client holding a token with right permissions can decrypt encrypted data 
+
+#### decrpting the text above 
+> VAULT_TOKEN=$APP_ORDER_TOKEN vault write \
+    transit/decrypt/orders ciphertext=$CIPHERTEXT
+
+#### the resulting data is base64 we need to decode it 
+base64 --decode <<< "NDExMSAxMTExIDExMTEgMTExMQo="
+
+### Rotate the encryption key
++ To rotate encrption keys we need to use this endpoint `transit/keys/<key_ring_name>/rotate`
+ + here we are using `orders`
+
+```
+### we create a rotate which will be called for rotation 
+vault write -f transit/keys/orders/rotate
+
+### we encrypt data with a new key 
+vault write transit/encrypt/orders plaintext=$(base64 <<< "4111 1111 1111 1111")
+
+### we can rewrap the key with the latest keyring 
+vault write transit/rewrap/orders \
+    ciphertext=$CIPHERTEXT
+
+```
+### Automatic key rotation 
++ we can also automate the key rotations at a time interval 
+
+#### we read orders key information 
++ vault read transit/keys/orders 
+
++ `auto_rotate_period ` parameter configures how the auto rotate should rotate the keys 
+
+### configure to rotate every 24h 
+> vault write transit/keys/orders/config auto_rotate_period=24h
