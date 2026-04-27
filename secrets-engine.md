@@ -1,4 +1,5 @@
 # Secrets Engines 
+
 + they store ,generate and Encrypt data in vault
 
 secrets engines they path based like everything else in vault and we can 
@@ -293,3 +294,9 @@ vault write transit/rewrap/orders \
 
 ### configure to rotate every 24h 
 > vault write transit/keys/orders/config auto_rotate_period=24h
+
+
+
+
+mentor model 
+`vault path-help transit`
