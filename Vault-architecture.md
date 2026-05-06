@@ -45,3 +45,6 @@ Understanding this architecture is key to effectively using and operating Vault.
 I hope this provides a clear high-level picture. Is there a specific component, like the seal/unseal process or how policies are structured, that you'd like to explore in more detail?
 
 This response is AI-generated, for reference only.
+
+## HashiCorp Cloud Platform (HCP) 
+This allows us to deploy different kinds of hashicorp tools  
