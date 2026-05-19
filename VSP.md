@@ -5,7 +5,7 @@
 
 ![alt text](image-7.png)
 ### Features of VSO
-+ it supports syncing from ,multiple secret sources 
++ it supports syncing from ,multiple secret sources to vault
 + automatic secret drift detection  and remediation 
 + automatic secret rotation for Deployment,ReplicaSet,StatefuSet
 

@@ -173,6 +173,16 @@
     - C) Encrypts the secret_id
     - D) Creates a wrapping token
 
+<details>
+<summary>Show Answers</summary>
+
+1. True | 2. False | 3. False | 4. True | 5. False
+6. B | 7. C | 8. B | 9. B | 10. B
+11. A, C, E | 12. A, C | 13. A, C, E
+14. C | 15. C | 16. B | 17. A | 18. B | 19. B | 20. B
+21. B | 22. A | 23. True | 24. B | 25. B | 26. B | 27. B | 28. B
+</details>
+
 ---
 
 ## 📜 Domain 2: Vault Policies (Questions 29-52)
@@ -296,6 +306,17 @@
     - D) `sudo` on `kv/...`
 
 52. Which policy allows an app to read its own cubbyhole?
+
+<details>
+<summary>Show Answers</summary>
+
+29. True | 30. False | 31. False | 32. True
+33. B | 34. B | 35. B | 36. B | 37. B
+38. A, C, E | 39. B, C | 40. A, C, E
+41. Use `deny` on admin path | 42. `update` on `auth/token/renew-self` | 43. B
+44. B | 45. B | 46. `{{identity.entity.name}}` | 47. B | 48. `["create"]`
+49. B | 50. C | 51. C | 52. `path "cubbyhole/*" { capabilities = ["read","list"] }`
+</details>
 
 ---
 
@@ -436,6 +457,16 @@
     - C) 7 days
     - D) Unlimited
 
+<details>
+<summary>Show Answers</summary>
+
+53. False | 54. False | 55. False | 56. True
+57. B | 58. B | 59. A | 60. B | 61. C
+62. A, C, E | 63. A, C, E | 64. A, C, E
+65. B | 66. B | 67. A | 68. C | 69. C | 70. B
+71. D | 72. B | 73. B | 74. B | 75. B | 76. B
+</details>
+
 ---
 
 ## 🔄 Domain 4: Vault Leases (Questions 77-92)
@@ -529,6 +560,15 @@
     - B) The token lacks `sudo` capability
     - C) The increment value is too large
     - D) The lease is for a static secret
+
+<details>
+<summary>Show Answers</summary>
+
+77. False | 78. True | 79. False
+80. A | 81. A | 82. A | 83. A
+84. A, E | 85. A, C, E
+86. B | 87. B | 88. C | 89. B | 90. A | 91. C | 92. A
+</details>
 
 ---
 
@@ -705,6 +745,19 @@
     - C) Compress the secret data
     - D) Create an audit log entry
 
+<details>
+<summary>Show Answers</summary>
+
+93. True | 94. True | 95. False | 96. True
+97. C | 98. A | 99. B | 100. A | 101. A
+102. A, C, E | 103. B, D | 104. A, C, E
+105. B | 106. C | 107. `vault secrets tune -max-lease-ttl=8760h pki`
+108. A | 109. B | 110. D | 111. A | 112. B
+113. `vault write database/config/...` with plugin_name, connection_url, etc.
+114. A | 115. A | 116. A | 117. A | 118. A | 119. B | 120. A
+121. A | 122. A | 123. `vault read totp/code/mykey` | 124. B
+</details>
+
 ---
 
 ## 🔐 Domain 6: Encryption as a Service (Questions 125-136)
@@ -774,6 +827,15 @@
     - D) Minimum TTL for encrypted data
 
 136. To generate a data key (for client-side encryption), which command?
+
+<details>
+<summary>Show Answers</summary>
+
+125. True | 126. False
+127. A | 128. B | 129. A
+130. A, C, E | 131. A, C, E
+132. B | 133. A | 134. A | 135. A | 136. `vault write transit/datakey/...`
+</details>
 
 ---
 
@@ -880,6 +942,16 @@
     - B) `vault start --dev`
     - C) `vault run -mode=dev`
     - D) `vault init -dev`
+
+<details>
+<summary>Show Answers</summary>
+
+137. True | 138. False | 139. True
+140. B | 141. B | 142. B | 143. B
+144. A, C, E | 145. A, C, E
+146. B | 147. A | 148. `seal "awskms" {...}` | 149. B | 150. A
+151. B | 152. `export VAULT_TOKEN="s.xxxx"` | 153. B | 154. B | 155. False | 156. A
+</details>
 
 ---
 
@@ -1012,6 +1084,18 @@
     - C) File
     - D) All support HA
 
+<details>
+<summary>Show Answers</summary>
+
+157. True | 158. False | 159. False
+160. C | 161. B | 162. A | 163. A
+164. A, C, E | 165. A, C, E | 166. A, C, E
+167. B | 168. B | 169. `storage "raft" { path=... node_id=... retry_join {...} }`
+170. B | 171. A | 172. `vault operator generate-root` workflow
+173. B | 174. B | 175. `seal "transit" {...}` config
+176. B | 177. A | 178. A | 179. B | 180. C
+</details>
+
 ---
 
 ## 🤖 Domain 9: Access Management Architecture (Questions 181-200)
@@ -1137,6 +1221,17 @@
     - B) Remove the `cache` block entirely
     - C) Set `use_auto_auth_token = false`
     - D) Both A and B
+
+<details>
+<summary>Show Answers</summary>
+
+181. True | 182. False
+183. B | 184. B | 185. `cache { use_auto_auth_token=true }` + `listener` block
+186. A, C, E | 187. A, C, E
+188. B | 189. A | 190. B | 191. A | 192. File path like `/vault/secrets/db-creds`
+193. C | 194. B | 195. B | 196. A | 197. `auth/kubernetes` | 198. B
+199. A | 200. D
+</details>
 
 ---
 
