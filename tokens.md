@@ -19,3 +19,32 @@ we can list tokens via `auth/token/accessors`
 ### Token Time-To-Live, periodic tokens, and explicit max TTLs
 + every non root token has TTL associated with it, and when it expires it gets revoked ( non root token have 0 TTL  which means they have no expiration time )
 + we can renew the vault token via `vault token renew`
+
+## creating batch tokens 
+```
+# Create a token with broader permissions (from root)
+# Using "root" policy isn't allowed for batch tokens, but using a policy with specific grants works
+
+# First, check what policies your root token has
+vault token lookup | grep policies
+
+# Create a policy that explicitly allows token creation and batch tokens
+cat > batch-creator.hcl << EOF
+path "auth/token/create" {
+  capabilities = ["create", "update", "sudo"]
+}
+
+path "auth/token/create-orphan" {
+  capabilities = ["create", "update", "sudo"]
+}
+EOF
+
+vault policy write batch-creator batch-creator.hcl
+
+# Create token with this policy
+CREATOR_TOKEN=$(vault token create -policy=batch-creator -ttl=10m -field=token)
+
+# Now create batch token
+VAULT_TOKEN=$CREATOR_TOKEN vault token create -type=batch -ttl=5m
+
+```

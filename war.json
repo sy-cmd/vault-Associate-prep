@@ -1,0 +1,33 @@
+{"keys":["default","developer-vault-policy","root"],"policies":["default","developer-vault-policy","root"],"request_id":"56f38ebc-0992-3e7f-024e-19342bc459eb","lease_id":"","renewable":false,"lease_duration":0,"data":{"keys":["default","developer-vault-policy","root"],"policies":["default","developer-vault-policy","root"]},"wrap_info":null,"warnings":null,"auth":null,"mount_type":"system"}
+{
+  "keys": [
+    "default",
+    "developer-vault-policy",
+    "root"
+  ],
+  "policies": [
+    "default",
+    "developer-vault-policy",
+    "root"
+  ],
+  "request_id": "6f4c2333-24c9-53eb-e0ba-aa19f2d7cf26",
+  "lease_id": "",
+  "renewable": false,
+  "lease_duration": 0,
+  "data": {
+    "keys": [
+      "default",
+      "developer-vault-policy",
+      "root"
+    ],
+    "policies": [
+      "default",
+      "developer-vault-policy",
+      "root"
+    ]
+  },
+  "wrap_info": null,
+  "warnings": null,
+  "auth": null,
+  "mount_type": "system"
+}
