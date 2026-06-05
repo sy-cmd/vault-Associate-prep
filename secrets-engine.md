@@ -300,3 +300,15 @@ vault write transit/rewrap/orders \
 
 mentor model 
 `vault path-help transit`
+
+## Lease, renew, and revoke
++ A lease in vault is the metadata of a secret , and it contains this Time to live etc
++ every dynamic secrets and service tokens contain leases. 
++ KV doesn't have leases even if it shows them. 
+### renew and revoke 
++ leases can be renewed if the TTL has not expired and the moment they expire they get revoked and they can not be renewed 
++ the purpose of leases they force users to routinly check the ttl of their leases so that they insure they credentials are upto date. 
+### Lease IDs
++ when reading a dynamic secret via `vault read` vault always returns a `lease_id`. 
++ the ID can be used with the lease commands such as 
+ + `vault lease renew` and `vault lease revoke` to manage the lease of a secret.

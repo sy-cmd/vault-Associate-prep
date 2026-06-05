@@ -27,3 +27,61 @@ vault identity supports group management. Entities in a group have the polices o
 ### External vs internal groups
 + groups that are created in the identity store they are called internal groups.
 + external groups are created outside of the identity store
+
+## Implement identity entities and groups
+
+### Create an Entity with Alias
++ BOb have two credentials in vault that are not connected to each other and we would like to create an entity that has two alias that represents this data. 
+### policies required 
+```
+## base policy 
+vault policy write base -<<EOF
+path "secret/data/training_*" {
+   capabilities = ["create", "read"]
+}
+EOF
+```
+
+```
+## test 
+vault policy write test -<<EOF
+path "secret/data/test" {
+   capabilities = [ "create", "read", "update", "delete" ]
+}
+EOF
+```
+```
+## team-qa
+vault policy write team-qa -<<EOF
+path "secret/data/team-qa" {
+   capabilities = [ "create", "read", "update", "delete" ]
+}
+EOF
+```
+### we enable the userpass 
++ `vault auth enable -path="userpass-test" userpass`
++ we create a user bob and password training and give it policy test 
+  + `vault write auth/userpass-test/users/bob password="training" policies="test"`
++ we enable userpass at userpass-qa `vault auth enable -path="userpass-qa" userpass`
+ + we create the user and password
+ + `vault write auth/userpass-qa/users/bsmith password="training" policies="team-qa"`
++ we use save the accessors of each auth we created 
+  + `vault auth list -format=json | jq -r '.["userpass-test/"].accessor' > accessor_test.txt`
+  + `vault auth list -format=json | jq -r '.["userpass-qa/"].accessor' > accessor_qa.txt`
++ we create an entity for bob-smith 
+> vault write -format=json identity/entity name="bob-smith" policies="base" \
+     metadata=organization="ACME Inc." \
+     metadata=team="QA" \
+     | jq -r ".data.id" > entity_id.txt
++ we add bob to the bob-smith entity 
+> vault write identity/entity-alias name="bob" \
+     canonical_id=$(cat entity_id.txt) \
+     mount_accessor=$(cat accessor_test.txt) \
+     custom_metadata=account="Tester Account"
++ we add bsmith to he bob-smith entity 
+> vault write identity/entity-alias name="bsmith" \
+     canonical_id=$(cat entity_id.txt) \
+     mount_accessor=$(cat accessor_qa.txt) \
+     custom_metadata=account="QA Eng Account"
++ we can review the entity details 
+> vault read -format=json identity/entity/id/$(cat entity_id.txt) | jq -r ".data"
