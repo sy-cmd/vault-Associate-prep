@@ -302,13 +302,91 @@ mentor model
 `vault path-help transit`
 
 ## Lease, renew, and revoke
-+ A lease in vault is the metadata of a secret , and it contains this Time to live etc
-+ every dynamic secrets and service tokens contain leases. 
-+ KV doesn't have leases even if it shows them. 
-### renew and revoke 
-+ leases can be renewed if the TTL has not expired and the moment they expire they get revoked and they can not be renewed 
-+ the purpose of leases they force users to routinly check the ttl of their leases so that they insure they credentials are upto date. 
-### Lease IDs
-+ when reading a dynamic secret via `vault read` vault always returns a `lease_id`. 
-+ the ID can be used with the lease commands such as 
- + `vault lease renew` and `vault lease revoke` to manage the lease of a secret.
+
+A lease is the **metadata attached to a dynamic secret or service token** — it holds the TTL, renewability, and a unique lease ID. It is not the secret itself.
+
+### What has leases vs what does not
+
+| Has a lease | No lease |
+|-------------|----------|
+| Dynamic secrets (database creds, AWS creds) | KV v1 secrets |
+| Service tokens | KV v2 secrets |
+| | Batch tokens |
+
+> **Exam trap:** KV secrets do NOT have real leases even though the API response may show a `lease_duration` field. That field is informational only — there is nothing to renew.
+
+### Lease ID
+
+Every dynamic secret read returns a `lease_id` in the format:
+```
+database/creds/readonly/abc123xyz456
+<engine>/<path>/<role>/<unique-id>
+```
+
+### Core lease commands
+
+```bash
+# Renew a lease by its ID (extends TTL)
+vault lease renew <lease_id>
+
+# Renew with a specific increment
+vault lease renew -increment=2h <lease_id>
+
+# Revoke a single lease immediately
+vault lease revoke <lease_id>
+
+# Revoke ALL leases under a prefix path (bulk revocation)
+vault lease revoke -prefix database/creds/readonly/
+
+# List active leases under a path
+vault list sys/leases/lookup/database/creds/
+
+# List active leases under AWS creds
+vault list sys/leases/lookup/aws/creds/
+
+# Look up details of a specific lease
+vault lease lookup <lease_id>
+```
+
+### max_ttl and renewal limits
+
+- A lease can be renewed as long as it has not hit its `max_ttl`
+- Once `max_ttl` is reached, **renewal fails** and the credential is revoked
+- You must request a new credential — there is no override
+
+```bash
+# This fails if max_ttl already reached
+vault lease renew database/creds/readonly/abc123
+# Error: lease has expired or is not renewable
+```
+
+### Exam traps — the three questions you got wrong
+
+**Q62 trap:** `vault lease revoke -prefix database/creds/readonly/`
+- Revokes **all** leases under that prefix — not just the most recent one
+- Think of it as a bulk delete for all credentials issued from that role
+
+**Q65 trap:** To list active leases, the correct path is:
+```bash
+vault list sys/leases/lookup/aws/creds/
+```
+`vault lease list` does **not** exist as a command.
+
+**Q69 trap:** To revoke all AWS credentials during a security incident:
+```bash
+vault lease revoke -prefix aws/creds/
+```
+Rotating root AWS credentials alone does not revoke already-issued leases — the old credentials remain valid until their lease expires or you revoke them explicitly.
+
+### Practical pattern — incident response
+
+```bash
+# Security incident: revoke everything issued from the database readonly role
+vault lease revoke -prefix database/creds/readonly/
+
+# Security incident: revoke all AWS credentials across all roles
+vault lease revoke -prefix aws/creds/
+
+# Check what's still active after revocation
+vault list sys/leases/lookup/aws/creds/
+```

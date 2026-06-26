@@ -695,17 +695,39 @@ vault token revoke -prefix auth/token/create/
 
 ### 3.10 Root Tokens
 
-```bash
-# Create root token (requires existing root or via unwrap)
-vault token create -root
+> EXAM TRAP: `vault token create -root` does NOT exist. Root tokens cannot be created with the token create command.
 
-# Generate root token from unseal keys (emergency)
-vault operator generate-root -addr=$VAULT_ADDR
+```bash
+# --- Regenerating a lost/revoked root token ---
+
+# Step 1: Initialize the ceremony (save the OTP it prints)
+vault operator generate-root -init
+# Outputs: Nonce, OTP (keep this secret), Progress 0/3
+
+# Step 2: Each unseal key holder provides their key (using the shared nonce)
+vault operator generate-root -nonce=<nonce>
+# Vault prompts for their unseal key
+# Repeat until threshold met (e.g. 3 of 5)
+
+# Step 3: Decode the encoded token using your OTP
+vault operator generate-root -decode=<encoded_token> -otp=<otp>
+# Returns the actual root token
+
+# Step 4: Use it, then revoke immediately
+vault token revoke <root_token>
+
+# --- Other ceremony commands ---
+
+# Check progress without submitting a key
+vault operator generate-root -status
+
+# Cancel the ceremony
+vault operator generate-root -cancel
 
 # Note: Root tokens should only be used for:
 # - Initial setup
 # - Emergency recovery
-# - Periodic maintenance tasks
+# Revoke immediately after use
 ```
 
 ---
